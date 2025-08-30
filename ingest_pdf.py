@@ -24,13 +24,14 @@ embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
 # Normalize Japanese texts
 def normalize_text(t: str) -> str:
-    """日本語PDF抽出後の軽い整形。"""
     if not t:
         return ""
+
     t = t.replace("\u00A0", " ")                 # NBSP → 半角スペース
     t = re.sub(r"[ \t]+", " ", t)                # 連続スペース圧縮
     t = re.sub(r"\s*\n\s*", "\n", t)             # 行頭末スペース除去
     t = re.sub(r"\n{3,}", "\n\n", t)             # 3連改行→2
+
     return t.strip()
 
 
@@ -44,11 +45,9 @@ docs = loader.load()  # page_content + metadata: {"page": n, "source": path}
 # === Add metadata ===
 for d in docs:
     d.metadata["source_name"] = pdf.name
-    # PyPDFLoaderはpage番号をmetadata["page"]に入れてくれる
     d.page_content = normalize_text(d.page_content)
 
 # === Create chunks ===
-# 書籍は1,000〜1,200文字/20%前後のオーバーラップが安定
 splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP,
                                           separators=[
                                                 "\n\n", "\n", "。", "！", "？", "．", "…",
