@@ -1,0 +1,10 @@
+.idea/
+.venv/
+books/
+vector_store/
+
+.env
+
+
+
+
